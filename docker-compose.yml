@@ -1,10 +1,40 @@
-version: "3"
 
-services: 
-  app: 
-    build: .
-    command: npm start
-    ports: 
+version: '3'
+
+services:
+  node:
+    image: node:12-alpine
+
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_PASSWORD}"
+    ports:
       - "3000:3000"
-    volumes: 
-      - .:/usr/app
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin4-volume
+    networks:
+      - postgres-network
+
+networks:
+  postgres-network:
+    driver: bridge
+
+volumes:
+  postgres-volume:
+    driver: local
+  pgadmin4-volume:
+    driver: local
